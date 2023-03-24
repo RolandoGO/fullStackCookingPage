@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken")
 require("dotenv").config();
 
-//function for encoding with jwt the data pass in and if no expire string if giving, it will be 5 hours by default
+
 function createToken(payload, expiresIn = "5h") {
 
 
@@ -14,18 +14,28 @@ function createToken(payload, expiresIn = "5h") {
 
 }
 
-//decode jwt string function
-function decodeToken(token) {
+function verifyToken(token) {
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET_WORD);
-        return decoded;
-    } catch (err) {
+        return decoded
 
-        return null;
+    } catch (err) {
+        return null
+    }
+}
+
+function decodeToken(token) {
+    try {
+        const decoded = jwt.decode(token);
+        return decoded
+
+    } catch (err) {
+        return null
     }
 }
 
 module.exports = {
     createToken,
+    verifyToken,
     decodeToken
 }
