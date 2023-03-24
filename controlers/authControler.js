@@ -1,5 +1,5 @@
 const User = require("../models/user")
-const decodePassword = require("../helpers/decryptFunc")
+const comparingPassword_Token = require("../helpers/decryptFunc")
 const { createToken } = require("../helpers/jwt")
 
 const ErrorHandler = require("../helpers/errorHandler")
@@ -28,7 +28,7 @@ const authController = {
 
             //compare passwords
 
-            const comparePassword = await decodePassword(password, user.password)
+            const comparePassword = await comparingPassword_Token(password, user.password)
 
 
             if (comparePassword) {
