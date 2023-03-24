@@ -1,7 +1,6 @@
 const bcrypt = require("bcrypt")
 
-//function for comparing hash password and regular password 
-async function decodePassword(password, hashPassword) {
+async function comparingPassword_Token(password, hashPassword) {
 
 
     try {
@@ -18,4 +17,4 @@ async function decodePassword(password, hashPassword) {
 
 }
 
-module.exports = decodePassword
+module.exports = comparingPassword_Token

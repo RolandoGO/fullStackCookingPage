@@ -60,6 +60,20 @@ const emailSchema = checkSchema({
 
 })
 
+//schema for new password in reset password route
+const newPasswordSchema = checkSchema({
+
+    password: {
+        notEmpty: true,
+        isLength: {
+            errorMessage: 'Password should be at least 5 chars long',
+            options: { min: 5 },
+        }
+
+    }
+
+})
+
 
 
 //middleware for checking fields working with the schema.
@@ -78,6 +92,7 @@ module.exports = {
     singUpSchema,
     loginSchema,
     emailSchema,
+    newPasswordSchema,
     fieldValidationMiddleware
 
 
