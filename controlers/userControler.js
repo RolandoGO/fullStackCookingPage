@@ -7,7 +7,6 @@ const userController = {
 
     getAllUsers: async (req, res, next) => {
 
-        console.group(req.user)
         try {
             const user = await User.find().select("name email")
 
