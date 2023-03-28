@@ -1,11 +1,8 @@
 const User = require("../models/user")
-const bcrypt = require("bcrypt")
-const comparingPassword_Token = require("../helpers/comparePassword_token")
-const { createToken, verifyToken, decodeToken } = require("../helpers/jwt")
+const { verifyToken } = require("../helpers/jwt")
 const ErrorHandler = require("../helpers/errorHandler")
 const successResponse = require("../helpers/successResponse")
-const sendEmailFunction = require("../helpers/sendEmailFunc")
-const prepareEmailTemplate = require("../helpers/resetPasswordEmailTemplate")
+const { logInService, forgotPasswordService, resetPasswordService } = require("../service/authService")
 require("dotenv").config();
 
 
@@ -15,66 +12,22 @@ const authController = {
 
     logInUser: async (req, res, next) => {
 
-        const { email, password } = req.body
-        try {
+        const serviceCall = await logInService(req)
 
-            //find user in db
-            const user = await User.findOne({ email })
+        if (!serviceCall.error) {
 
-            if (!user) {
-                const error = new ErrorHandler(`cant login user, invalid email`, 401)
-                next(error)
-                return
-            }
-
-
-
-            //compare passwords
-
-            const comparePassword = await comparingPassword_Token(password, user.password)
-
-
-            if (comparePassword) {
-                //set the isLogin field in the db as true
-
-                try {
-                    await User.findOneAndUpdate({ email: user.email }, { isLogin: true }, { new: true })
-
-                }
-                catch {
-
-                    return
-                }
-
-                //create token and send in it in body
-                const dataToEncode = {
-                    name: user.name,
-                    email: user.email,
-                    id: user._id
-                }
-                const token = createToken(dataToEncode)
-
-                const response = {
-                    res,
-                    message: "user login success",
-                    body: { token }
-
-                }
-
-                successResponse(response)
-
-            }
-            else {
-                const error = new ErrorHandler(`invalid password`, 401)
-                next(error)
+            const response = {
+                res,
+                message: "user login success",
+                body: { token }
 
             }
 
-
+            successResponse(response)
 
         }
-        catch (err) {
-            const error = new ErrorHandler(`cant login user, ${err}`, 401)
+        else {
+            const error = new ErrorHandler(`cant login user: ${serviceCall.message}`, serviceCall.code)
             next(error)
         }
 
@@ -83,61 +36,24 @@ const authController = {
 
     forgotPassword: async (req, res, next) => {
 
-        try {
-            //check email in db
-            const { email } = req.body
-            const user = await User.findOne({ email })
+        const serviceCall = await forgotPasswordService(req)
 
-            if (!user) {
-                const error = new ErrorHandler(` invalid email`, 401)
-                next(error)
-                return
-            }
-
-            //create token saving it in the database
-
-            const token = createToken({ email }, "10m");
-            const hashToken = await bcrypt.hash(token, 10)
-
-
-            await User.findOneAndUpdate({ email }, { resetPasswordToken: hashToken }, { new: true })
-
-            //send url with token to email adress
-
-            const resetPasswordUrl = `${req.protocol}://${req.get("host")}/auth/resetPassword/${token}`
-            const emailTemplateData = {
-                email,
-                info: "email token valid for 10 min",
-                url: resetPasswordUrl
-            }
-
-            const emailOptions = {
-                email,
-                subject: "reset password email",
-                html: prepareEmailTemplate(emailTemplateData)
-
-            }
-
-            await sendEmailFunction(emailOptions)
+        if (!serviceCall.error) {
 
             const response = {
                 res,
                 message: "token send to email"
             }
             successResponse(response)
-
         }
 
-        catch (err) {
+        else {
 
             await User.findOneAndUpdate({ email: req.email }, { resetPasswordToken: undefined }, { new: true })
-            const error = new ErrorHandler(`error reseting password: ${err}`, 500)
+            const error = new ErrorHandler(`cant login user: ${serviceCall.message}`, serviceCall.code)
             next(error)
 
         }
-
-
-
 
     },
 
@@ -159,31 +75,10 @@ const authController = {
 
     resetPassword: async (req, res, next) => {
 
-        try {
-            const { email } = decodeToken(req.params.token)
-            const { password } = req.body
+        const serviceCall = resetPasswordService(req)
 
-            //check if user exist
-            const user = await User.findOne({ email })
-            if (!user) {
-                const error = new ErrorHandler("user not found, wrong email", 400)
-                next(error)
-                return
-            }
+        if (!serviceCall.error) {
 
-            //check if token in url is the same that the one in db
-            const { token } = req.params
-            const comparingTokens = await comparingPassword_Token(token, user.resetPasswordToken)
-            if (!comparingTokens) {
-                const error = new ErrorHandler("invalid token", 401)
-                next(error)
-                return
-            }
-
-            //reseting the password
-            user.password = password
-            user.resetPasswordToken = undefined
-            await user.save()
 
             const response = {
                 res,
@@ -196,8 +91,8 @@ const authController = {
 
 
         }
-        catch {
-            const error = new ErrorHandler("cant reset password", 500)
+        else {
+            const error = new ErrorHandler(serviceCall.message, serviceCall.code)
             next(error)
         }
 

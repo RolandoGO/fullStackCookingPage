@@ -9,9 +9,10 @@ const errorHandler = require("./helpers/herrorHandler")
 const indexRouter = require("./routes")
 
 
+if (process.env.NODE_ENV === "porduction") {
+    const port = process.env.PRODUCTION_PORT || 3030;
 
-const port = process.env.PORT || 3030;
-
+}
 const app = express();
 app.use(cors());
 app.use(express.json());
