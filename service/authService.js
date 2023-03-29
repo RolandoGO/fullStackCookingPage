@@ -54,7 +54,6 @@ async function logInService(req) {
 
             //create token and send in it in body
             const dataToEncode = {
-                name: user.name,
                 email: user.email,
                 id: user._id
             }

@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require("bcrypt")
-const deletedUsers = require("./deletedUsers")
+const deletedUsers = require("./DeleteUsers")
 const errorHandler = require("../helpers/errorHandler")
 
 const userSchema = new mongoose.Schema({
@@ -14,6 +14,7 @@ const userSchema = new mongoose.Schema({
     role: {
         type: String,
         required: true,
+        enum: ["client"],
         default: "client"
     },
 

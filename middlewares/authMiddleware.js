@@ -1,6 +1,5 @@
-const User = require("../models/user")
+const User = require("../models/Users")
 const { decodeToken } = require("../helpers/jwt")
-const errorResponse = require("../helpers/errorHandler")
 const ErrorHandler = require("../helpers/errorHandler")
 
 
@@ -73,21 +72,21 @@ async function ownershipMiddleware(req, res, next) {
 
 
 
-    const user = await User.findOne({ email: req.user.email })
-    if (!user) {
-        const error = new ErrorHandler()
-        next(error)
-        return
-    }
-
-    console.log(user)
     //checking role of user
+
+    const { email, id } = req.user
+
+    const user = await User.findOne({ email })
+
     if (user.role === "admin") {
         next()
         return
     }
+
+
     //checking if ids are the same when is not admin role
-    else if (req.params.id === user._id.toString()) {
+
+    else if (req.params.userId === id) {
         next()
         return
     }

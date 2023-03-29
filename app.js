@@ -5,15 +5,18 @@ require("dotenv").config();
 
 
 const db = require("./models/index")
-const errorHandler = require("./helpers/herrorHandler")
+const errorHandler = require("./helpers/errorHandler")
 const indexRouter = require("./routes")
 
 
 if (process.env.NODE_ENV === "porduction") {
-    const port = process.env.PRODUCTION_PORT || 3030;
 
+    //production variables
 }
+const port = process.env.DEV_PORT || 3030;
 const app = express();
+
+
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -43,10 +46,10 @@ function conection_db_server() {
     db()
         .then(msg => {
 
-            console.log("conected to the database")
+
             //if the conection with the db is successfull
             app.listen(port, () => {
-                console.log(`Servidor funcionando en el puerto ${port}`);
+                console.log(`Conected to the database, Servidor funcionando en el puerto ${port}`);
 
             });
 
