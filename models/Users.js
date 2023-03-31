@@ -11,12 +11,6 @@ const userSchema = new mongoose.Schema({
         maxlength: [20, "name cant have more than 20 characters"],
         required: true
     },
-    role: {
-        type: String,
-        required: true,
-        enum: ["client"],
-        default: "client"
-    },
 
     email: {
         type: String,
@@ -27,15 +21,28 @@ const userSchema = new mongoose.Schema({
         }, "not a valid email adress"],
         unique: [true, "email already exist"]
     },
+    role: {
+        type: String,
+        enum: ["client"],
+        default: "client"
+    },
     isLogin: {
         type: Boolean,
         default: false
+    },
+    confirmAcountToken: {
+        type: String
     },
 
     password: {
         type: String,
         required: true
     },
+    resetPasswordToken: {
+        type: String
+
+    },
+
 
     createdAt: {
         type: Date,

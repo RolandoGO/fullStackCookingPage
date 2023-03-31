@@ -8,13 +8,6 @@ const singUpSchema = checkSchema({
         notEmpty: true,
         errorMessage: "Name field cannot be empty"
     },
-    email: {
-        notEmpty: true,
-        errorMessage: "email field cannot be empty",
-        isEmail: {
-            bail: true,
-        }
-    },
     password: {
         isLength: {
             errorMessage: 'Password should be at least 5 chars long',

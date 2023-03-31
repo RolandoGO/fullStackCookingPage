@@ -16,7 +16,18 @@ async function sendEmailFunction(options) {
             }
         })
 
+        const mailOptions = {
+            from: "<rolandogrethe@gmail.com>",
+            to: options.email,
+            subject: options.subject,
+            html: options.html
+
+        }
+
+        await transport.sendMail(mailOptions)
     }
+
+
     //FOR DEV
     else {
         const transport = nodemailer.createTransport({
@@ -27,17 +38,22 @@ async function sendEmailFunction(options) {
                 pass: process.env.EMAIL_PASSWORD
             }
         })
+
+
+        const mailOptions = {
+            from: "<rolandogrethe@gmail.com>",
+            to: options.email,
+            subject: options.subject,
+            html: options.html
+
+        }
+
+        await transport.sendMail(mailOptions)
+
     }
 
-    const mailOptions = {
-        from: "<rolandogrethe@gmail.com>",
-        to: options.email,
-        subject: options.subject,
-        html: options.html
 
-    }
 
-    await transport.sendMail(mailOptions)
 }
 
 

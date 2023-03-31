@@ -1,4 +1,4 @@
-const User = require("../models/user")
+const User = require("../models/Users")
 const { verifyToken } = require("../helpers/jwt")
 const ErrorHandler = require("../helpers/errorHandler")
 const successResponse = require("../helpers/successResponse")
@@ -19,7 +19,7 @@ const authController = {
             const response = {
                 res,
                 message: "user login success",
-                body: { token }
+                body: { token: serviceCall.message }
 
             }
 
@@ -50,7 +50,7 @@ const authController = {
         else {
 
             await User.findOneAndUpdate({ email: req.email }, { resetPasswordToken: undefined }, { new: true })
-            const error = new ErrorHandler(`cant login user: ${serviceCall.message}`, serviceCall.code)
+            const error = new ErrorHandler(serviceCall.message, serviceCall.code)
             next(error)
 
         }
@@ -73,9 +73,10 @@ const authController = {
         res.render("resetPasswordPage")
     },
 
+
     resetPassword: async (req, res, next) => {
 
-        const serviceCall = resetPasswordService(req)
+        const serviceCall = await resetPasswordService(req)
 
         if (!serviceCall.error) {
 

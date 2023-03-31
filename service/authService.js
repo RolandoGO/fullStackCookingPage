@@ -1,7 +1,7 @@
-const User = require("../models/user")
+const User = require("../models/Users")
 const bcrypt = require("bcrypt")
 const comparingPassword_Token = require("../helpers/comparePassword_token")
-const { createToken, decodeToken } = require("../helpers/jwt")
+const { createToken, decodeToken, verifyToken } = require("../helpers/jwt")
 const sendEmailFunction = require("../helpers/sendEmailFunc")
 const prepareEmailTemplate = require("../helpers/resetPasswordEmailTemplate")
 require("dotenv").config();
@@ -9,9 +9,9 @@ require("dotenv").config();
 
 //general object to return for controler response
 const serviceResponse = {
-    error,
-    message,
-    code
+    error: false,
+    message: "",
+    code: 0
 }
 
 async function logInService(req) {
@@ -130,9 +130,10 @@ async function forgotPasswordService(req) {
 
 
 
+
         //send url with token to email adress
 
-        const resetPasswordUrl = `${req.protocol}://${req.get("host")}/auth/resetPassword/${token}`
+        const resetPasswordUrl = `${req.protocol}://${req.get("host")}/auth/resetpassword/${token}`
         const emailTemplateData = {
             email,
             info: "email token valid for 10 min",
@@ -145,6 +146,7 @@ async function forgotPasswordService(req) {
             html: prepareEmailTemplate(emailTemplateData)
 
         }
+
 
         await sendEmailFunction(emailOptions)
 
@@ -167,8 +169,21 @@ async function resetPasswordService(req) {
 
 
     try {
-        const { email } = decodeToken(req.params.token)
-        const { password } = req.body
+
+        //check if token is manipulated
+
+        const { token } = req.params
+        const tokenVerification = verifyToken(token)
+
+        if (!tokenVerification) {
+            serviceResponse.error = true
+            serviceResponse.message = "invalid token"
+            serviceResponse.code = 401
+            return serviceResponse
+        }
+
+
+        const { email } = decodeToken(token)
 
         //check if user exist
         const user = await User.findOne({ email })
@@ -180,8 +195,10 @@ async function resetPasswordService(req) {
         }
 
         //check if token in url is the same that the one in db
-        const { token } = req.params
         const comparingTokens = await comparingPassword_Token(token, user.resetPasswordToken)
+
+
+
         if (!comparingTokens) {
             serviceResponse.error = true
             serviceResponse.message = "invalid token"
@@ -190,12 +207,16 @@ async function resetPasswordService(req) {
         }
 
         //reseting the password
-        user.password = password
-        user.resetPasswordToken = undefined
-        await user.save()
+        const { password } = req.body
+        const hashPassword = await bcrypt.hash(password, 10)
 
+        console.log("en reset password")
+        //updating password and password reset token in db
+        await User.findOneAndUpdate({ email }, { password: hashPassword, resetPasswordToken: undefined }, { new: true })
         serviceResponse.error = false
         return serviceResponse
+
+
     }
     catch {
         serviceResponse.error = true

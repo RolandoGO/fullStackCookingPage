@@ -72,19 +72,19 @@ async function ownershipMiddleware(req, res, next) {
 
 
 
-    //checking role of user
+    //checking if user is admin by the admin email in .env
 
     const { email, id } = req.user
 
     const user = await User.findOne({ email })
 
-    if (user.role === "admin") {
+    if (email === process.env.ADMIN_EMAIL) {
         next()
         return
     }
 
 
-    //checking if ids are the same when is not admin role
+    //checking if USER ids are the same when is not admin role
 
     else if (req.params.userId === id) {
         next()
