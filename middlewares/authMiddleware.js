@@ -78,7 +78,7 @@ async function ownershipMiddleware(req, res, next) {
 
     const user = await User.findOne({ email })
 
-    if (email === process.env.ADMIN_EMAIL) {
+    if (user.role.toLowerCase() === "admin") {
         next()
         return
     }

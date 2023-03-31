@@ -194,7 +194,7 @@ async function resetPasswordService(req) {
             return serviceResponse
         }
 
-        //check if token in url is the same that the one in db
+        //check if token in url is the same that the hash token in db
         const comparingTokens = await comparingPassword_Token(token, user.resetPasswordToken)
 
 
@@ -210,9 +210,8 @@ async function resetPasswordService(req) {
         const { password } = req.body
         const hashPassword = await bcrypt.hash(password, 10)
 
-        console.log("en reset password")
         //updating password and password reset token in db
-        await User.findOneAndUpdate({ email }, { password: hashPassword, resetPasswordToken: undefined }, { new: true })
+        await User.findOneAndUpdate({ email }, { password: hashPassword, resetPasswordToken: null }, { new: true })
         serviceResponse.error = false
         return serviceResponse
 

@@ -1,0 +1,21 @@
+Title: 
+
+Cooking Web Page
+
+Description:
+
+Is an aplication where you need to be singup to use it, you can write recepies with photos that are save in the db an in the scope of every one else in the app, only the owner and admin can delete and update the recepies. 
+
+It has the necesari logic for reseting passwords with email sending and for confirm acount with email sending also
+
+
+
+
+
+
+
+.ENV Variables
+
+-This app use mailtrap for now to fake email sending; open an acount and add the username, password, host and port in .env fiel
+
+-DB by mongo db atlas
