@@ -9,7 +9,7 @@ require("dotenv").config();
 
 const authController = {
 
-
+    //login Controler
     logInUser: async (req, res, next) => {
 
         const serviceCall = await logInService(req)
@@ -32,8 +32,33 @@ const authController = {
         }
 
     },
+    //logOut Controler
+    logOutUser: async (req, res, next) => {
 
 
+        const { email } = req.user
+        try {
+
+            await User.findOneAndUpdate({ email }, { isLogin: false }, { new: true })
+            const response = {
+                res,
+                message: "user logout"
+
+            }
+
+            successResponse(response)
+
+
+        }
+        catch (err) {
+            const error = new ErrorHandler(`cant logout user: ${err}`, 500)
+            next(error)
+        }
+
+
+    },
+
+    //functionality for sending email with token 
     forgotPassword: async (req, res, next) => {
 
         const serviceCall = await forgotPasswordService(req)
@@ -57,6 +82,7 @@ const authController = {
 
     },
 
+    //functionality for rendering page with url and token from email 
 
     resetPasswordPage: async (req, res, next) => {
 
@@ -73,6 +99,7 @@ const authController = {
         res.render("resetPasswordPage")
     },
 
+    //functionality to reset password 
 
     resetPassword: async (req, res, next) => {
 

@@ -14,6 +14,7 @@ const serviceResponse = {
     code: 0
 }
 
+//Login functionality
 async function logInService(req) {
 
     const { email, password } = req.body
@@ -55,7 +56,7 @@ async function logInService(req) {
             //create token and send in it in body
             const dataToEncode = {
                 email: user.email,
-                id: user._id
+                id: user._id.toString()
             }
 
             const token = createToken(dataToEncode)
@@ -85,6 +86,7 @@ async function logInService(req) {
         return serviceResponse
     }
 }
+
 
 //forgot password service
 
