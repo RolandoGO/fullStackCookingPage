@@ -1,4 +1,5 @@
 const cloudinary = require('cloudinary').v2;
+const fsExtra = require("fs-extra")
 require("dotenv").config()
 
 // Configuration 
@@ -12,6 +13,11 @@ cloudinary.config({
 async function uploadImage(filepath) {
 
     const imageUpload = await cloudinary.uploader.upload(filepath, { folder: "recepies" })
+
+    //delete image from uploads file
+    await fsExtra.unlink(filepath)
+
+    return imageUpload
 
 
 }

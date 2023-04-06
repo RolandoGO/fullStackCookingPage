@@ -1,6 +1,6 @@
 const ErrorHandler = require("../helpers/errorHandler")
-const uploadImage = require("../helpers/imageUploadConfig")
 const successResponse = require("../helpers/successResponse")
+const { createRecepieService } = require("../service/recepieService")
 
 const recepieControler = {
 
@@ -10,17 +10,22 @@ const recepieControler = {
 
     createRecepie: async (req, res, next) => {
 
-        const { tempFilePath } = req.files.image
 
-        try {
-            await uploadImage(tempFilePath)
-            res.send("image uploaded ")
+        const serviceCall = await createRecepieService(req)
+
+        if (!serviceCall.error) {
+
+            const response = {
+                res,
+                message: "recepie created",
+                body: serviceCall.message
+            }
+
+            successResponse(response)
         }
-        catch (err) {
-
-            res.send(`error: ${err}`)
-
-
+        else {
+            const error = new ErrorHandler(`cant create recepie: ${serviceCall.message}`, serviceCall.code)
+            next(error)
         }
     },
 

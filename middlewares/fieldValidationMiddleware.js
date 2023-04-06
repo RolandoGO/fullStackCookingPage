@@ -67,6 +67,34 @@ const newPasswordSchema = checkSchema({
 
 })
 
+const recepieSchema = checkSchema({
+
+    userId: {
+        notEmpty: true,
+        errorMessage: "User id field cannot be empty",
+        trim: true
+    },
+    title: {
+        notEmpty: true,
+        errorMessage: 'Title field cannot be empty',
+        trim: true
+    },
+    ingredients: {
+        notEmpty: true,
+        errorMessage: "Ingredients field cannot be empty",
+        trim: true
+    },
+    instructions: {
+        notEmpty: true,
+        errorMessage: "Instructions field cannot be empty",
+        trim: true
+
+    }
+})
+
+
+
+
 
 //middleware for checking fields working with the schema.
 const fieldValidationMiddleware = function (req, res, next) {
@@ -85,7 +113,7 @@ module.exports = {
     loginSchema,
     emailSchema,
     newPasswordSchema,
-
+    recepieSchema,
     fieldValidationMiddleware
 
 

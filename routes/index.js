@@ -2,7 +2,6 @@ const express = require("express")
 const userRoutes = require("./userRoutes")
 const recepieRoutes = require("./recepieRoutes")
 const authRoutes = require("./authRoutes")
-const multer = require('multer');
 
 
 const router = express.Router()

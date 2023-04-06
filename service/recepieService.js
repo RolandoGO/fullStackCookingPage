@@ -1,28 +1,38 @@
+const uploadImage = require("../helpers/imageUploadConfig")
 const Recepie = require("../models/Recepies")
 
 
 //response service object 
 const serviceResponse = {
-    error,
-    message,
-    code
+    error: false,
+    message: "",
+    code: 0
 }
 
 //create recepie service
 async function createRecepieService(req) {
 
     try {
-        await Recepie.create(req.body)
+
+        //uploading image to cloudinary db
+        const { tempFilePath } = req.files.image
+        const image = await uploadImage(tempFilePath)
+
+        //atatach image url and id to body and upload recepie data to mongo atlas
+
+        req.body.image = { url: image.secure_url, id: image.public_id }
+
+        const recepie = await Recepie.create(req.body)
 
         serviceResponse.error = false
-
+        serviceResponse.message = recepie
         return serviceResponse
 
 
     }
-    catch {
+    catch (err) {
         serviceResponse.error = true
-        serviceResponse.message = "cant create recepie"
+        serviceResponse.message = `cant created recepie, error: ${err}`
         serviceResponse.code = 500
         return serviceResponse
 
