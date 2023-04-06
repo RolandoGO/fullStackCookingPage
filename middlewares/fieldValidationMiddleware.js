@@ -1,4 +1,4 @@
-const { checkSchema, validationResult } = require('express-validator');
+const { checkSchema, validationResult, body } = require('express-validator');
 
 
 //schemas for middleware to use in validation
@@ -68,7 +68,6 @@ const newPasswordSchema = checkSchema({
 })
 
 
-
 //middleware for checking fields working with the schema.
 const fieldValidationMiddleware = function (req, res, next) {
     const errors = validationResult(req);
@@ -86,6 +85,7 @@ module.exports = {
     loginSchema,
     emailSchema,
     newPasswordSchema,
+
     fieldValidationMiddleware
 
 

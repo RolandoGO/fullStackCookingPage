@@ -1,4 +1,5 @@
 const ErrorHandler = require("../helpers/errorHandler")
+const uploadImage = require("../helpers/imageUploadConfig")
 const successResponse = require("../helpers/successResponse")
 
 const recepieControler = {
@@ -9,9 +10,18 @@ const recepieControler = {
 
     createRecepie: async (req, res, next) => {
 
+        const { tempFilePath } = req.files.image
+
+        try {
+            await uploadImage(tempFilePath)
+            res.send("image uploaded ")
+        }
+        catch (err) {
+
+            res.send(`error: ${err}`)
 
 
-
+        }
     },
 
     updateRecepie: () => {
