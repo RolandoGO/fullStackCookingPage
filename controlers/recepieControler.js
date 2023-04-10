@@ -1,10 +1,34 @@
 const ErrorHandler = require("../helpers/errorHandler")
 const successResponse = require("../helpers/successResponse")
-const { createRecepieService } = require("../service/recepieService")
+const { createRecepieService, getAllRecepieService, updateRecepieService } = require("../service/recepieService")
+
 
 const recepieControler = {
 
-    getAllRecepies: () => {
+    getAllRecepies: async (req, res, next) => {
+
+
+
+        const serviceCall = await getAllRecepieService(req)
+
+        if (!serviceCall.error) {
+
+            const response = {
+                res,
+                message: serviceCall.message,
+                body: serviceCall.data
+            }
+
+            successResponse(response)
+        }
+        else {
+
+            const error = new ErrorHandler(serviceCall.message, serviceCall.code)
+            next(error)
+
+        }
+
+
 
     },
 
@@ -17,21 +41,38 @@ const recepieControler = {
 
             const response = {
                 res,
-                message: "recepie created",
-                body: serviceCall.message
+                message: serviceCall.message,
+                body: serviceCall.data
             }
 
             successResponse(response)
         }
         else {
-            const error = new ErrorHandler(`cant create recepie: ${serviceCall.message}`, serviceCall.code)
+            const error = new ErrorHandler(serviceCall.message, serviceCall.code)
             next(error)
         }
     },
 
-    updateRecepie: () => {
+    updateRecepie: async (req, res, next) => {
 
+        const serviceCall = await updateRecepieService(req)
+
+        if (!serviceCall.error) {
+
+            const response = {
+                res,
+                message: serviceCall.message,
+                body: serviceCall.data
+            }
+
+            successResponse(response)
+        }
+        else {
+            const error = new ErrorHandler(serviceCall.message, serviceCall.code)
+            next(error)
+        }
     },
+
 
     deleteRecepie: () => {
 

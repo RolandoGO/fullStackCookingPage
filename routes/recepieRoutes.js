@@ -7,9 +7,9 @@ const router = express.Router()
 
 
 
-router.get("/", login_check_middleware, getAllRecepies)
+router.get("/", getAllRecepies)
 router.post("/", imageMiddleware, recepieSchema, fieldValidationMiddleware, createRecepie)
-router.put("/:userId/:recepieId", login_check_middleware, ownershipMiddleware, updateRecepie)
-router.delete("/:userId/:recepieId", login_check_middleware, ownershipMiddleware, deleteRecepie)
+router.put("/:userId/:recepieId", imageMiddleware, updateRecepie)
+router.delete("/:userId/:recepieId", deleteRecepie)
 
 module.exports = router

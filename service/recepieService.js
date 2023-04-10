@@ -1,21 +1,25 @@
-const uploadImage = require("../helpers/imageUploadConfig")
+const fsExtra = require("fs-extra")
+const { uploadImage, deleteImage } = require("../helpers/imageUploadConfig")
 const Recepie = require("../models/Recepies")
 
 
 //response service object 
 const serviceResponse = {
     error: false,
+    code: 0,
     message: "",
-    code: 0
+    data: {} || []
 }
+
 
 //create recepie service
 async function createRecepieService(req) {
 
+    const { tempFilePath } = req.files.image
+
     try {
 
         //uploading image to cloudinary db
-        const { tempFilePath } = req.files.image
         const image = await uploadImage(tempFilePath)
 
         //atatach image url and id to body and upload recepie data to mongo atlas
@@ -25,15 +29,26 @@ async function createRecepieService(req) {
         const recepie = await Recepie.create(req.body)
 
         serviceResponse.error = false
-        serviceResponse.message = recepie
+        serviceResponse.message = `recepie created`
+        serviceResponse.data = recepie
+
         return serviceResponse
+
+
 
 
     }
     catch (err) {
+
+
+        //delete image from uploads file
+        await fsExtra.unlink(filepath)
+
         serviceResponse.error = true
-        serviceResponse.message = `cant created recepie, error: ${err}`
+        serviceResponse.message = "cant create recepie"
         serviceResponse.code = 500
+
+
         return serviceResponse
 
 
@@ -47,8 +62,12 @@ async function createRecepieService(req) {
 async function getAllRecepieService() {
 
     try {
-        await Recepie.find()
+        const recepies = await Recepie.find()
+
+
         serviceResponse.error = false
+        serviceResponse.message = `there are ${recepies.length} recepies`
+        serviceResponse.data = recepies
 
         return serviceResponse
 
@@ -66,18 +85,67 @@ async function getAllRecepieService() {
 async function updateRecepieService(req) {
 
     try {
-        await Recepie.findOneAndUpdate({ _id: req.params.id }, req.body, { new: true })
-        serviceResponse.error = false
+        const { userId, recepieId } = req.params
 
-        return serviceResponse
+        if (req.files) {
+
+            //search for recepie
+
+            const recepie = await Recepie.findOne({ recepieId })
+            //validate user
+            if (recepie.userId !== req.user.id) {
+                serviceResponse.error = true
+                serviceResponse.message = "not your recepie"
+                serviceResponse.code = 402
+                return serviceResponse
+
+            }
+
+            //delete and then upload new image
+            const { image } = recepie
+            const { tempFilePath } = req.files.image
+
+            await deleteImage(image.id)
+            const newImage = await uploadImage(tempFilePath)
+
+            //add new image info to body object and added to the recepie db
+            req.body.image = { url: newImage.secure_url, id: newImage.public_id }
+
+            const newRecepie = await Recepie.findOneAndUpdate({ userId }, req.body, { new: true })
+
+            serviceResponse.error = false
+            serviceResponse.message = `recepie updated`
+            serviceResponse.data = newRecepie
+
+            return serviceResponse
+
+        }
+        else {
+
+            //Just adding body without image
+
+            const newRecepie = await Recepie.findOneAndUpdate({ userId }, req.body, { new: true })
+
+            serviceResponse.error = false
+            serviceResponse.message = `recepie updated`
+            serviceResponse.data = newRecepie
+
+            return serviceResponse
+
+        }
+
 
     }
-    catch {
+    catch (err) {
+
         serviceResponse.error = true
-        serviceResponse.message = "cant update recepie"
+        serviceResponse.message = `cant update recepie, error: ${err}`
         serviceResponse.code = 500
         return serviceResponse
+
     }
+
+
 
 }
 
