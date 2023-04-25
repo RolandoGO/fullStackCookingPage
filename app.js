@@ -4,17 +4,13 @@ const cors = require("cors");
 const fileUpload = require("express-fileupload")
 require("dotenv").config();
 
-
 const db = require("./models/index")
 const errorHandler = require("./helpers/errorHandler")
 const indexRouter = require("./routes")
 
+const port = process.env.PORT || 3030;
 
-if (process.env.NODE_ENV === "porduction") {
 
-    //production variables
-}
-const port = process.env.DEV_PORT || 3030;
 const app = express();
 
 //middlewares to config app
@@ -46,35 +42,17 @@ app.use((err, req, res, next) => {
     res.status(err.statusCode || 500).json({ error: err.message || "server error" })
 });
 
-// function for conecting to database and conecting to the server
-
-
-function conection_db_server() {
-
-    db()
-        .then(msg => {
-
-
-            //if the conection with the db is successfull
-            app.listen(port, () => {
-                console.log(`Conected to the database, Servidor funcionando en el puerto ${port}`);
-
-            });
-
-        })
-        .catch(err => {
-            console.log("cant conect to the database " + err)
-        })
-
-}
-
-conection_db_server()
+db()
+    .then(() => {
+        console.log("conected to db")
+        return
+    })
+    .catch((err) => { throw Error(`cant connect to db, ${err}`) })
 
 
 
+app.listen(port)
+console.log("server running")
 
 
-
-
-
-module.exports = app;
+module.exports = { app, port }

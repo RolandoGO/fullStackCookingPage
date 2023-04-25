@@ -15,16 +15,21 @@ const serviceResponse = {
 //create recepie service
 async function createRecepieService(req) {
 
-    const { tempFilePath } = req.files.image
 
     try {
 
-        //uploading image to cloudinary db
-        const image = await uploadImage(tempFilePath)
+        if (req.files.image) {
+            const { tempFilePath } = req.files.image
 
-        //atatach image url and id to body and upload recepie data to mongo atlas
+            //uploading image to cloudinary db
+            const image = await uploadImage(tempFilePath)
 
-        req.body.image = { url: image.secure_url, id: image.public_id }
+            //atatach image url and id to body and upload recepie data to mongo atlas
+
+            req.body.image = { url: image.secure_url, id: image.public_id }
+
+        }
+
 
         const recepie = await Recepie.create(req.body)
 
@@ -72,9 +77,9 @@ async function getAllRecepieService() {
         return serviceResponse
 
     }
-    catch {
+    catch (err) {
         serviceResponse.error = true
-        serviceResponse.message = "cant get recepies"
+        serviceResponse.message = `cant get all recepies, error: ${err}`
         serviceResponse.code = 500
         return serviceResponse
     }
@@ -153,9 +158,28 @@ async function updateRecepieService(req) {
 
 async function deleteRecepieService(req) {
 
+    const { userId, recepieId } = req.params
+
     try {
-        await Recepie.deleteOne({ _id: req.params.id })
+
+        //search for recepie
+
+        const recepie = await Recepie.findOne({ recepieId })
+        //validate user
+        if (recepie.userId !== req.user.id) {
+            serviceResponse.error = true
+            serviceResponse.message = "not your recepie"
+            serviceResponse.code = 402
+            return serviceResponse
+
+        }
+
+        await deleteImage(recepie.image.id)
+
+
+        await Recepie.deleteOne({ _id: recepie._id })
         serviceResponse.error = false
+        serviceResponse.message = "recepie deleted"
 
         return serviceResponse
 

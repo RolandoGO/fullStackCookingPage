@@ -1,13 +1,11 @@
 const ErrorHandler = require("../helpers/errorHandler")
 const successResponse = require("../helpers/successResponse")
 const { createRecepieService, getAllRecepieService, updateRecepieService } = require("../service/recepieService")
-
+const Recipe = require("../models/Recepies")
 
 const recepieControler = {
 
     getAllRecepies: async (req, res, next) => {
-
-
 
         const serviceCall = await getAllRecepieService(req)
 
